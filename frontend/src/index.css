@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --gc-bg: #f3faf7;
+  --gc-surface: #ffffff;
+  --gc-surface-soft: #ecfdf5;
+  --gc-text: #0f172a;
+  --gc-muted: #475569;
+  --gc-primary: #059669;
+  --gc-primary-hover: #047857;
+  --gc-primary-fg: #ffffff;
+  --gc-accent: #4f46e5;
+  --gc-accent-fg: #ffffff;
+  --gc-border: #d1fae5;
+  --gc-border-strong: #a7f3d0;
+}
+
+.dark {
+  --gc-bg: #0b1120;
+  --gc-surface: #111827;
+  --gc-surface-soft: #172033;
+  --gc-text: #f8fafc;
+  --gc-muted: #94a3b8;
+  --gc-primary: #10b981;
+  --gc-primary-hover: #34d399;
+  --gc-primary-fg: #022c22;
+  --gc-accent: #818cf8;
+  --gc-accent-fg: #1e1b4b;
+  --gc-border: #1e293b;
+  --gc-border-strong: #334155;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", "Noto Sans Devanagari", system-ui, -apple-system, sans-serif;
+  background-color: var(--gc-bg);
+  color: var(--gc-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.bento-card {
+  background-color: var(--gc-surface);
+  border: 1px solid var(--gc-border);
+  border-radius: 1.25rem;
+  transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.bento-card-hover:hover {
+  border-color: var(--gc-primary);
+  box-shadow: 0 10px 25px -10px rgba(5, 150, 105, 0.18);
+}
