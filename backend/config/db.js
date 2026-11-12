@@ -15,12 +15,28 @@ import {
 } from "../data/seedCitizens.js";
 
 export async function connectDB() {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   const mongoUri = process.env.MONGO_URI;
   if (!mongoUri || mongoUri.includes("YOUR_CONNECTION_STRING")) {
-    throw new Error("MONGO_URI is missing or still set to placeholder in backend/.env");
+    throw new Error("MONGO_URI is missing or still set to placeholder in environment variables");
   }
-  await mongoose.connect(mongoUri);
-  console.log("MongoDB connected");
+
+  if (!globalThis.__gcMongoPromise) {
+    globalThis.__gcMongoPromise = mongoose.connect(mongoUri).then((m) => {
+      console.log("MongoDB connected");
+      return m;
+    });
+  }
+
+  try {
+    return await globalThis.__gcMongoPromise;
+  } catch (err) {
+    globalThis.__gcMongoPromise = null;
+    throw err;
+  }
 }
 
 export function mapSeedSchemeToMongo(s) {
@@ -203,9 +219,21 @@ export async function seedAllMongoData() {
 }
 
 export async function ensureMongoSeeded() {
-  const count = await Scheme.countDocuments();
-  if (count === 0) {
-    await seedAllMongoData();
+  if (globalThis.__gcSeedDone) return;
+  if (!globalThis.__gcSeedPromise) {
+    globalThis.__gcSeedPromise = (async () => {
+      const count = await Scheme.countDocuments();
+      if (count === 0) {
+        await seedAllMongoData();
+      }
+      globalThis.__gcSeedDone = true;
+    })();
+  }
+  try {
+    await globalThis.__gcSeedPromise;
+  } catch (err) {
+    globalThis.__gcSeedPromise = null;
+    throw err;
   }
 }
 

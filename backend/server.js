@@ -12,13 +12,27 @@ dotenv.config({ path: path.resolve(import.meta.dirname, ".env") });
 const app = express();
 const PORT = Number(process.env.PORT) || 5050;
 
-const allowedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",").map((s) => s.trim())
-  : ["http://localhost:5173"];
+const envOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((s) => s.trim()).filter(Boolean)
+  : [];
+
+const vercelOrigins = [
+  process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+  process.env.VERCEL_BRANCH_URL && `https://${process.env.VERCEL_BRANCH_URL}`,
+  process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+].filter(Boolean);
+
+const allowedOrigins = Array.from(new Set(["http://localhost:5173", ...envOrigins, ...vercelOrigins]));
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin(origin, callback) {
+      // Allow same-origin / server-to-server requests (no Origin header) and configured origins
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true
   })
 );
@@ -33,12 +47,27 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+// Ensure MongoDB connection & initial seed before handling API routes (needed for serverless Vercel functions)
+app.use("/api", async (_req, res, next) => {
+  try {
+    await connectDB();
+    await ensureMongoSeeded();
+    next();
+  } catch (error) {
+    res.status(503).json({
+      success: false,
+      message: "Database unavailable",
+      error: error.message
+    });
+  }
+});
+
 app.use("/api/schemes", schemeRoutes);
 app.use("/api", platformRoutes);
 
-// Serve built frontend in standalone/production mode
+// Serve built frontend in local standalone/production mode (outside Vercel serverless)
 const distDir = path.resolve(import.meta.dirname, "..", "frontend", "dist");
-if (fs.existsSync(distDir)) {
+if (!process.env.VERCEL && fs.existsSync(distDir)) {
   app.use(express.static(distDir));
   app.get("/{*splat}", (req, res, next) => {
     if (req.path.startsWith("/api")) return next();
@@ -46,14 +75,19 @@ if (fs.existsSync(distDir)) {
   });
 }
 
-connectDB()
-  .then(async () => {
-    await ensureMongoSeeded();
-    app.listen(PORT, () => {
-      console.log(`GramConnect MongoDB API server running on http://localhost:${PORT}`);
+// Local development / standalone server startup
+if (!process.env.VERCEL) {
+  connectDB()
+    .then(async () => {
+      await ensureMongoSeeded();
+      app.listen(PORT, () => {
+        console.log(`GramConnect MongoDB API server running on http://localhost:${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error("MongoDB connection failed:", error.message);
+      process.exit(1);
     });
-  })
-  .catch((error) => {
-    console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
-  });
+}
+
+export default app;
