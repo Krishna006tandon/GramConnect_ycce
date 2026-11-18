@@ -242,8 +242,9 @@ export function AdminPanel() {
         {[
           { id: "schemes", label: `Manage Schemes & Rules (${state.schemes.length})` },
           { id: "citizens", label: `Citizen Records (${state.citizens.length})` },
-          { id: "applications", label: `Application Preparation Records (${state.applications.length})` },
-          { id: "sync", label: "Data.gov.in Sync" }
+          { id: "applications", label: `Application Records (${state.applications.length})` },
+          { id: "sync", label: "Data.gov.in Sync" },
+          { id: "ngoUptake", label: "NGO & Under-Served Area Analytics (Vidarbha)" }
         ].map((tb) => (
           <button
             key={tb.id}
@@ -490,6 +491,167 @@ export function AdminPanel() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {adminTab === "ngoUptake" && (
+        <div className="space-y-4">
+          <div className="bento-card p-5 space-y-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    PS Core Feature 6
+                  </span>
+                  <h2 className="text-base font-extrabold">NGO &amp; Local Body Area Uptake Analytics</h2>
+                </div>
+                <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--gc-muted)" }}>
+                  Enables NGOs, Gram Panchayats, and Urban Local Bodies in <strong>Nagpur and Vidarbha</strong> to spot demographic pockets where eligibility is high but citizen uptake is lagging.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-3 py-1.5 rounded-xl border" style={{ borderColor: "var(--gc-border-strong)", color: "var(--gc-primary)" }}>
+                  Focus: Vidarbha Slums &amp; Rural Districts
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+              <div className="p-3 rounded-xl border" style={{ borderColor: "var(--gc-border)", backgroundColor: "var(--gc-surface-soft)" }}>
+                <div className="font-semibold text-slate-500">Cohort Assessed</div>
+                <div className="text-lg font-black mt-0.5">7,100 Citizens</div>
+              </div>
+              <div className="p-3 rounded-xl border" style={{ borderColor: "var(--gc-border)", backgroundColor: "var(--gc-surface-soft)" }}>
+                <div className="font-semibold text-slate-500">Avg. Eligible Rate</div>
+                <div className="text-lg font-black text-emerald-600 mt-0.5">81.2%</div>
+              </div>
+              <div className="p-3 rounded-xl border" style={{ borderColor: "var(--gc-border)", backgroundColor: "var(--gc-surface-soft)" }}>
+                <div className="font-semibold text-slate-500">Avg. App Uptake</div>
+                <div className="text-lg font-black text-indigo-600 mt-0.5">45.8%</div>
+              </div>
+              <div className="p-3 rounded-xl border" style={{ borderColor: "var(--gc-border)", backgroundColor: "var(--gc-surface-soft)" }}>
+                <div className="font-semibold text-slate-500">Under-Served Pockets</div>
+                <div className="text-lg font-black text-rose-600 mt-0.5">2 Priority Areas</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Regional Table & Heatmap */}
+          <div className="bento-card p-5 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--gc-primary)" }}>
+              Area-by-Area Scheme Uptake &amp; Bottleneck Analysis
+            </h3>
+
+            <div className="space-y-3">
+              {[
+                {
+                  area: "Nagpur Urban Slums (Hasanbagh, Taj Nagar, Sadar)",
+                  demographic: "Daily-Wage Workers & Urban Informal Poor",
+                  eligible: 88,
+                  uptake: 22,
+                  gap: 66,
+                  status: "🔴 High Priority Under-Served",
+                  statusColor: "#dc2626",
+                  statusBg: "rgba(220, 38, 38, 0.12)",
+                  schemes: "PMAY-G Housing, MGNREGA, PM-JAY",
+                  blocker: "Aadhaar address mismatch & lack of digital literacy",
+                  action: "Deploy Mobile NGO Sahayata Van & weekend doorstep enrolment camp"
+                },
+                {
+                  area: "Nagpur Rural (Katol & Hingna Tehsils)",
+                  demographic: "Senior Citizens, SC Students & Small Farmers",
+                  eligible: 76,
+                  uptake: 39,
+                  gap: 37,
+                  status: "🟡 Under-Served Rural Pocket",
+                  statusColor: "#d97706",
+                  statusBg: "rgba(217, 119, 6, 0.12)",
+                  schemes: "NSAP Old Age Pension, NSP Scholarship, PM-KISAN",
+                  blocker: "BPL list verification & bank account linking",
+                  action: "Coordinate with Anganwadi & Gram Panchayat Sevadars for pension forms"
+                },
+                {
+                  area: "Amravati District (Morshi & Warud)",
+                  demographic: "Rural Women & Self-Employed Artisans",
+                  eligible: 81,
+                  uptake: 54,
+                  gap: 27,
+                  status: "🟡 Moderate Uptake",
+                  statusColor: "#d97706",
+                  statusBg: "rgba(217, 119, 6, 0.12)",
+                  schemes: "Majhi Ladki Bahin, PM Vishwakarma",
+                  blocker: "DBT-enabled bank account activation",
+                  action: "Lead District Bank e-KYC camp at weekly village haats"
+                },
+                {
+                  area: "Wardha District (Seloo & Deoli)",
+                  demographic: "Landholding & Marginal Farmers",
+                  eligible: 79,
+                  uptake: 68,
+                  gap: 11,
+                  status: "🟢 Active Coverage",
+                  statusColor: "#059669",
+                  statusBg: "rgba(5, 150, 105, 0.12)",
+                  schemes: "PM-KISAN, Namo Shetkari Mahasanman",
+                  blocker: "7/12 land extract mutation approvals at Talathi office",
+                  action: "Routine monitoring via local CSC Kendra network"
+                }
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-2xl border space-y-3"
+                  style={{ borderColor: "var(--gc-border)", backgroundColor: "var(--gc-bg)" }}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h4 className="font-extrabold text-sm">{item.area}</h4>
+                      <p className="text-xs" style={{ color: "var(--gc-muted)" }}>
+                        Target Demographic: <strong>{item.demographic}</strong>
+                      </p>
+                    </div>
+                    <span
+                      className="px-3 py-1 rounded-full text-xs font-extrabold shrink-0"
+                      style={{ backgroundColor: item.statusBg, color: item.statusColor }}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+
+                  {/* Progress Bar of Uptake vs Eligibility */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[11px] font-bold">
+                      <span style={{ color: "var(--gc-muted)" }}>
+                        Eligible: <strong>{item.eligible}%</strong> | Actual Application Uptake: <strong>{item.uptake}%</strong>
+                      </span>
+                      <span style={{ color: item.statusColor }}>
+                        Coverage Gap: {item.gap}%
+                      </span>
+                    </div>
+                    <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden relative">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${item.uptake}%`, backgroundColor: item.statusColor }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                    <div className="p-2.5 rounded-xl border bg-white dark:bg-slate-900" style={{ borderColor: "var(--gc-border)" }}>
+                      <span className="font-bold text-slate-500 block text-[10px] uppercase">Primary Schemes &amp; Blocker</span>
+                      <div className="font-semibold text-slate-700 dark:text-slate-300 mt-0.5">{item.schemes}</div>
+                      <div className="text-[11px] text-amber-600 font-medium mt-0.5">⚠️ {item.blocker}</div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl border bg-white dark:bg-slate-900" style={{ borderColor: "var(--gc-border)" }}>
+                      <span className="font-bold text-emerald-600 block text-[10px] uppercase">Recommended Local Body Action</span>
+                      <div className="font-medium text-slate-700 dark:text-slate-300 mt-0.5">{item.action}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

@@ -38,6 +38,18 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+html.large-text {
+  font-size: 112%;
+}
+
+html.large-text .text-xs {
+  font-size: 0.85rem !important;
+}
+
+html.large-text .text-sm {
+  font-size: 0.975rem !important;
+}
+
 .bento-card {
   background-color: var(--gc-surface);
   border: 1px solid var(--gc-border);

@@ -63,6 +63,55 @@ export function HomeBento({ onSelectCategory }) {
 
   return (
     <div className="space-y-6">
+      {/* Quick Evaluator Persona Storyboard */}
+      <div
+        className="bento-card p-3.5 flex flex-wrap items-center justify-between gap-3 border shadow-sm"
+        style={{
+          backgroundColor: "var(--gc-surface)",
+          borderColor: "var(--gc-border-strong)"
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-base">🎯</span>
+          <div>
+            <span className="text-xs font-black uppercase tracking-wider" style={{ color: "var(--gc-primary)" }}>
+              Evaluator Quick-Switch Personas:
+            </span>
+            <p className="text-[11px]" style={{ color: "var(--gc-muted)" }}>
+              Test instant rule matching across Vidarbha &amp; Nagpur demographics:
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { id: "cit-ramesh", label: "🌾 Ramesh (Farmer, Wardha)", schemeId: "pm-kisan" },
+            { id: "cit-sunita", label: "👩 Sunita (Woman, Amravati)", schemeId: "majhi-ladki-bahin-mh" },
+            { id: "cit-bandu", label: "🔨 Bandu (Slum Worker, Nagpur)", schemeId: "mgnrega" },
+            { id: "cit-ajay", label: "🎓 Ajay (Student, Nagpur)", schemeId: "nsp-scholarship" }
+          ].map((p) => {
+            const active = activeCitizen?.id === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => {
+                  setActiveCitizenId(p.id);
+                  setSelectedSchemeId(p.schemeId);
+                }}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition border"
+                style={
+                  active
+                    ? { backgroundColor: "var(--gc-primary)", borderColor: "var(--gc-primary)", color: "var(--gc-primary-fg)" }
+                    : { backgroundColor: "var(--gc-bg)", borderColor: "var(--gc-border)", color: "var(--gc-text)" }
+                }
+              >
+                <span>{p.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Top Bento Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Hero Bento Card */}

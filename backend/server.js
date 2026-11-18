@@ -6,6 +6,7 @@ import cors from "cors";
 import { connectDB, ensureMongoSeeded } from "./config/db.js";
 import schemeRoutes from "./routes/schemeRoutes.js";
 import platformRoutes from "./routes/platformRoutes.js";
+import smsRoutes from "./routes/smsRoutes.js";
 
 dotenv.config({ path: path.resolve(import.meta.dirname, ".env") });
 
@@ -63,6 +64,7 @@ app.use("/api", async (_req, res, next) => {
 });
 
 app.use("/api/schemes", schemeRoutes);
+app.use("/api/sms", smsRoutes);
 app.use("/api", platformRoutes);
 
 // Serve built frontend in local standalone/production mode (outside Vercel serverless)

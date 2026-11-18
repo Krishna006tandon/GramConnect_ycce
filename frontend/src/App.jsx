@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StoreProvider, useStore } from "./context/StoreContext";
 import { Navbar } from "./components/Navbar";
 import { HomeBento } from "./components/HomeBento";
@@ -8,6 +8,8 @@ import { HowItWorksView } from "./components/HowItWorksView";
 import { AdminPanel } from "./components/AdminPanel";
 import { CscPanel } from "./components/CscPanel";
 import { SchemeDetailModal } from "./components/SchemeDetailModal";
+import { JudgeTourModal } from "./components/JudgeTourModal";
+import { SmsAlertModal } from "./components/SmsAlertModal";
 
 function GramConnectShell() {
   const {
@@ -20,10 +22,27 @@ function GramConnectShell() {
   } = useStore();
 
   const [directoryCategory, setDirectoryCategory] = useState("All");
+  const [showJudgeTour, setShowJudgeTour] = useState(false);
+  const [showSmsModal, setShowSmsModal] = useState(false);
+  const [largeText, setLargeText] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (largeText) {
+      root.classList.add("large-text");
+    } else {
+      root.classList.remove("large-text");
+    }
+  }, [largeText]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar
+        onOpenJudgeTour={() => setShowJudgeTour(true)}
+        onOpenSms={() => setShowSmsModal(true)}
+        largeText={largeText}
+        onToggleLargeText={() => setLargeText((prev) => !prev)}
+      />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         {panel === "citizen" && (
@@ -63,8 +82,15 @@ function GramConnectShell() {
               {apiConnected ? "● MongoDB Backend Connected" : "○ Local Cache Mode"}
             </span>
           </div>
-          <div>
-            HackKumbh 2026 Prototype • Indicative eligibility only • Always verify on official government portals.
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowJudgeTour(true)}
+              className="font-bold underline text-xs"
+              style={{ color: "var(--gc-accent)" }}
+            >
+              🎯 Open Judge Guide
+            </button>
+            <span>• HackKumbh 2026 Prototype</span>
           </div>
         </div>
       </footer>
@@ -73,6 +99,22 @@ function GramConnectShell() {
         <SchemeDetailModal
           schemeId={selectedSchemeId}
           onClose={() => setSelectedSchemeId(null)}
+        />
+      )}
+
+      {showJudgeTour && (
+        <JudgeTourModal
+          onClose={() => setShowJudgeTour(false)}
+          onOpenSms={() => {
+            setShowJudgeTour(false);
+            setShowSmsModal(true);
+          }}
+        />
+      )}
+
+      {showSmsModal && (
+        <SmsAlertModal
+          onClose={() => setShowSmsModal(false)}
         />
       )}
     </div>

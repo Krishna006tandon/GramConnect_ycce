@@ -1,7 +1,7 @@
-import { Moon, Sun, ShieldCheck, Users, UserCheck, Compass, LayoutGrid, User, HelpCircle } from "lucide-react";
+import { Moon, Sun, ShieldCheck, Users, UserCheck, Compass, LayoutGrid, User, HelpCircle, Smartphone } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 
-export function Navbar() {
+export function Navbar({ onOpenJudgeTour, onOpenSms, largeText, onToggleLargeText }) {
   const {
     state,
     t,
@@ -95,8 +95,51 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Right Controls: 2 Themes + 3 Languages + Active Citizen */}
+          {/* Right Controls: Judge Tour + Large Text + SMS + Themes + Languages + Citizen */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Judge Tour Button */}
+            <button
+              onClick={onOpenJudgeTour}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm transition border"
+              style={{
+                backgroundColor: "var(--gc-accent)",
+                borderColor: "var(--gc-accent)",
+                color: "var(--gc-accent-fg)"
+              }}
+              title="Evaluator & Judge Guide (1-Minute Walkthrough)"
+            >
+              <span>🎯 Judge Tour</span>
+            </button>
+
+            {/* Fast2SMS Quick Modal Button */}
+            <button
+              onClick={onOpenSms}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition"
+              style={{
+                backgroundColor: "var(--gc-surface)",
+                borderColor: "var(--gc-border)",
+                color: "var(--gc-primary)"
+              }}
+              title="Open Fast2SMS Dispatcher"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">SMS Alert</span>
+            </button>
+
+            {/* Accessibility: Large Text (A / A+) */}
+            <button
+              onClick={onToggleLargeText}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-xl border text-xs font-black transition"
+              style={{
+                backgroundColor: largeText ? "var(--gc-primary)" : "var(--gc-surface)",
+                borderColor: largeText ? "var(--gc-primary)" : "var(--gc-border)",
+                color: largeText ? "var(--gc-primary-fg)" : "var(--gc-text)"
+              }}
+              title="Accessibility: Toggle Large Text (A+) for low-literacy users"
+            >
+              {largeText ? "A+" : "A"}
+            </button>
+
             {/* 2-Theme Toggle */}
             <button
               onClick={() => setTheme(state.theme === "light" ? "dark" : "light")}

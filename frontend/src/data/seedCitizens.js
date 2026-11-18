@@ -34,6 +34,40 @@ export const seedCitizens = [
     createdAt: "2026-11-03"
   },
   {
+    id: "cit-bandu",
+    name: "Bandu Shinde",
+    mobile: "9822944551",
+    email: "",
+    state: "Maharashtra",
+    district: "Nagpur",
+    village: "Hasanbagh Urban Slum",
+    age: 42,
+    occupation: "Daily-Wage Worker",
+    income: 80000,
+    gender: "Male",
+    category: "SC",
+    consentRecorded: true,
+    registeredBy: "Nagpur Slum NGO Camp",
+    createdAt: "2026-11-04"
+  },
+  {
+    id: "cit-parvati",
+    name: "Parvatibai Gaikwad",
+    mobile: "9970188992",
+    email: "",
+    state: "Maharashtra",
+    district: "Nagpur",
+    village: "Katol",
+    age: 68,
+    occupation: "Senior Citizen",
+    income: 45000,
+    gender: "Female",
+    category: "OBC",
+    consentRecorded: true,
+    registeredBy: "Aaple Sarkar Seva Kendra (Katol)",
+    createdAt: "2026-11-04"
+  },
+  {
     id: "cit-ajay",
     name: "Ajay Kamble",
     mobile: "9422188334",
@@ -53,7 +87,10 @@ export const seedCitizens = [
 ];
 
 export const seedSavedSchemes = {
-  "cit-ramesh": ["pm-kisan", "pmay-g", "namo-shetkari-mh"]
+  "cit-ramesh": ["pm-kisan", "pmay-g", "namo-shetkari-mh"],
+  "cit-sunita": ["majhi-ladki-bahin-mh", "pm-jay"],
+  "cit-bandu": ["mgnrega", "pmay-g", "pm-jay"],
+  "cit-parvati": ["nsap-pension", "pm-jay"]
 };
 
 export const seedDocReadiness = {
@@ -72,6 +109,27 @@ export const seedDocReadiness = {
       "pmay-gram": "needs_verification",
       "pmay-land": "not_prepared"
     }
+  },
+  "cit-bandu": {
+    "mgnrega": {
+      "mgnrega-id": "ready",
+      "mgnrega-bank": "ready",
+      "mgnrega-photo": "ready"
+    },
+    "pmay-g": {
+      "pmay-id": "ready",
+      "pmay-bank": "ready",
+      "pmay-household": "needs_verification",
+      "pmay-land": "not_prepared"
+    }
+  },
+  "cit-parvati": {
+    "nsap-pension": {
+      "nsap-id": "ready",
+      "nsap-age": "ready",
+      "nsap-bpl": "needs_verification",
+      "nsap-bank": "ready"
+    }
   }
 };
 
@@ -89,6 +147,19 @@ export const seedAssessments = [
       pk_excl: "unsure",
       pk_ekyc: "yes"
     }
+  },
+  {
+    id: "asmt-2",
+    citizenId: "cit-bandu",
+    schemeId: "mgnrega",
+    outcome: "eligible",
+    performedBy: "Nagpur Slum NGO Camp",
+    date: "2026-11-09",
+    answers: {
+      mg_area: "Rural / Peri-Urban",
+      mg_work: "yes",
+      mg_age: "yes"
+    }
   }
 ];
 
@@ -102,6 +173,16 @@ export const seedApplications = [
     notes: "7/12 extract verification pending at Talathi office",
     assistedBy: "Self",
     updatedAt: "2026-11-10"
+  },
+  {
+    id: "app-2",
+    citizenId: "cit-bandu",
+    schemeId: "pmay-g",
+    referenceNo: "PMAY-MH-NGP-2026-8821",
+    status: "Application submitted",
+    notes: "Waiting for Gram Sabha / Ward committee approval in Nagpur",
+    assistedBy: "Nagpur Slum NGO Camp",
+    updatedAt: "2026-11-12"
   }
 ];
 
@@ -112,5 +193,12 @@ export const seedAssistanceLogs = [
     operatorName: "Vikas Joshi (CSC Seloo)",
     action: "Profile registered with citizen consent & PM-JAY eligibility checked",
     date: "2026-11-03"
+  },
+  {
+    id: "csc-log-2",
+    citizenId: "cit-bandu",
+    operatorName: "Nagpur Slum Sahayata Samiti",
+    action: "Assisted Bandu Shinde with MGNREGA Job Card & PMAY-G document checklist",
+    date: "2026-11-04"
   }
 ];

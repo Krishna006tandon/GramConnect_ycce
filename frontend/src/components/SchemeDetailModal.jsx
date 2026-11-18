@@ -12,11 +12,17 @@ import {
   ClipboardList,
   ShieldAlert,
   Copy,
-  Check
+  Check,
+  Volume2,
+  VolumeX,
+  Smartphone,
+  Building2
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { evaluateSchemeEligibility, prefillAnswersFromProfile } from "../utils/eligibilityEngine";
 import { ReadinessRing } from "./ReadinessRing";
+import { speakText, stopSpeaking } from "../utils/voiceAssistant";
+import { SmsAlertModal } from "./SmsAlertModal";
 
 export function SchemeDetailModal({ schemeId, onClose, citizenOverride = null, performedBy = "Self" }) {
   const {
@@ -41,6 +47,29 @@ export function SchemeDetailModal({ schemeId, onClose, citizenOverride = null, p
   const [appNotes, setAppNotes] = useState("");
   const [appSavedMsg, setAppSavedMsg] = useState("");
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [showSmsModal, setShowSmsModal] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      stopSpeaking();
+    };
+  }, []);
+
+  const handleToggleVoice = () => {
+    if (!scheme) return;
+    if (speaking) {
+      stopSpeaking();
+      setSpeaking(false);
+    } else {
+      const title = scheme.title[state.lang] || scheme.title.en;
+      const desc = scheme.shortDesc[state.lang] || scheme.shortDesc.en;
+      const ben = scheme.benefits[state.lang] || scheme.benefits.en;
+      const textToSpeak = `${title}. ${desc}. ${ben}`;
+      setSpeaking(true);
+      speakText(textToSpeak, state.lang, (active) => setSpeaking(active));
+    }
+  };
 
   useEffect(() => {
     if (!scheme) return;
@@ -199,6 +228,38 @@ export function SchemeDetailModal({ schemeId, onClose, citizenOverride = null, p
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Low-Literacy Voice Read-Aloud */}
+            <button
+              type="button"
+              onClick={handleToggleVoice}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition"
+              style={{
+                borderColor: speaking ? "#059669" : "var(--gc-border-strong)",
+                backgroundColor: speaking ? "rgba(5, 150, 105, 0.15)" : "var(--gc-surface)",
+                color: speaking ? "#059669" : "var(--gc-text)"
+              }}
+              title="Voice Assistant: Read aloud in native language"
+            >
+              {speaking ? <VolumeX className="w-4 h-4 animate-pulse" /> : <Volume2 className="w-4 h-4" />}
+              <span className="hidden sm:inline">{speaking ? "Stop" : "Listen 🔊"}</span>
+            </button>
+
+            {/* Real-Time SMS Alert */}
+            <button
+              type="button"
+              onClick={() => setShowSmsModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition"
+              style={{
+                borderColor: "var(--gc-border-strong)",
+                backgroundColor: "var(--gc-surface)",
+                color: "var(--gc-primary)"
+              }}
+              title="Dispatch Real-Time SMS Alert to Citizen"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span className="hidden sm:inline">SMS 📱</span>
+            </button>
+
             {targetCitizen && (
               <button
                 onClick={() => toggleSaveScheme(targetCitizen.id, scheme.id)}
@@ -508,6 +569,32 @@ export function SchemeDetailModal({ schemeId, onClose, citizenOverride = null, p
                 <span>Illustrative checklist for prototype readiness tracking — no Aadhaar or sensitive file uploads.</span>
               </div>
 
+              {readyCount < scheme.documents.length && (
+                <div
+                  className="p-3.5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+                  style={{
+                    backgroundColor: "rgba(217, 119, 6, 0.12)",
+                    borderColor: "#d97706",
+                    color: "#d97706"
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>
+                      <strong>Missing Document Alert:</strong> {scheme.documents.length - readyCount} document(s) need preparation or verification. Remind citizen before deadline.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowSmsModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shrink-0 transition shadow-sm"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Dispatch SMS Alert</span>
+                  </button>
+                </div>
+              )}
+
               <div className="space-y-2.5">
                 {scheme.documents.map((doc) => {
                   const status = docMap[doc.id] || "not_prepared";
@@ -657,25 +744,78 @@ export function SchemeDetailModal({ schemeId, onClose, citizenOverride = null, p
                   style={{ backgroundColor: "var(--gc-bg)", borderColor: "var(--gc-border)", color: "var(--gc-text)" }}
                 />
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold"
+                      style={{ backgroundColor: "var(--gc-accent)", color: "var(--gc-accent-fg)" }}
+                    >
+                      {t.apply.saveTrackBtn}
+                    </button>
+                    {appSavedMsg && (
+                      <span className="text-xs font-bold" style={{ color: "var(--gc-primary)" }}>
+                        ✓ {appSavedMsg}
+                      </span>
+                    )}
+                  </div>
+
                   <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold"
-                    style={{ backgroundColor: "var(--gc-accent)", color: "var(--gc-accent-fg)" }}
+                    type="button"
+                    onClick={() => setShowSmsModal(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-bold"
+                    style={{ borderColor: "var(--gc-border-strong)", color: "var(--gc-primary)" }}
                   >
-                    {t.apply.saveTrackBtn}
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Send SMS Reminder</span>
                   </button>
-                  {appSavedMsg && (
-                    <span className="text-xs font-bold" style={{ color: "var(--gc-primary)" }}>
-                      ✓ {appSavedMsg}
-                    </span>
-                  )}
                 </div>
               </form>
+
+              {/* Nearby Help Centres (Nagpur & Vidarbha) */}
+              <div className="bento-card p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-amber-600" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--gc-primary)" }}>
+                      Nearby Help &amp; Seva Centres (Nagpur &amp; Vidarbha)
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                    Walk-In Assisted Application
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                  <div className="p-3 rounded-xl border space-y-1" style={{ borderColor: "var(--gc-border)" }}>
+                    <div className="font-bold">Aaple Sarkar Seva Kendra</div>
+                    <div className="text-[11px]" style={{ color: "var(--gc-muted)" }}>Near Tahsil Office, Hingna, Nagpur</div>
+                    <div className="text-[10px] font-mono text-emerald-600 font-bold">📞 0712-2541122 • 9:30 AM - 6 PM</div>
+                  </div>
+                  <div className="p-3 rounded-xl border space-y-1" style={{ borderColor: "var(--gc-border)" }}>
+                    <div className="font-bold">Setu Suvidha Kendra</div>
+                    <div className="text-[11px]" style={{ color: "var(--gc-muted)" }}>Collectorate Complex, Sadar, Nagpur</div>
+                    <div className="text-[10px] font-mono text-emerald-600 font-bold">📞 0712-2560144 • 10 AM - 5 PM</div>
+                  </div>
+                  <div className="p-3 rounded-xl border space-y-1" style={{ borderColor: "var(--gc-border)" }}>
+                    <div className="font-bold">CSC Digamber Seva Kendra</div>
+                    <div className="text-[11px]" style={{ color: "var(--gc-muted)" }}>Main Bazaar, Seloo, Wardha</div>
+                    <div className="text-[10px] font-mono text-emerald-600 font-bold">📞 9823011223 • 9 AM - 7 PM</div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {showSmsModal && (
+        <SmsAlertModal
+          initialScheme={scheme}
+          initialCitizen={targetCitizen}
+          onClose={() => setShowSmsModal(false)}
+        />
+      )}
     </div>
   );
 }
