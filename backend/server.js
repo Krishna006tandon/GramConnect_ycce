@@ -48,7 +48,10 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-// Ensure MongoDB connection & initial seed before handling API routes (needed for serverless Vercel functions)
+// Mount SMS routes independently (does not require MongoDB)
+app.use("/api/sms", smsRoutes);
+
+// Ensure MongoDB connection & initial seed before handling database API routes
 app.use("/api", async (_req, res, next) => {
   try {
     await connectDB();
@@ -64,7 +67,6 @@ app.use("/api", async (_req, res, next) => {
 });
 
 app.use("/api/schemes", schemeRoutes);
-app.use("/api/sms", smsRoutes);
 app.use("/api", platformRoutes);
 
 // Serve built frontend in local standalone/production mode (outside Vercel serverless)
